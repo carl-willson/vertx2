@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<!--
+-->
+
+<html>
+<head><title>Web Socket Test</title>
+  <style>
+        th, td, p, input {
+            font:14px Verdana;
+        }
+        table, th, td
+        {
+            border: solid 1px #DDD;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+        }
+        th {
+            font-weight:bold;
+        }
+        /* CSS command for the row to highlight */
+        .highlight {
+            background-color: #b8b8b8;
+        }
+    </style>
+</head>
+<body>
+<script>
+    var socket;
+//    alert("About to go....")
+    if (window.WebSocket) {
+//        var rqs = URLRequest(URL("ws://192.168.0.61:15080/myapp"))
+//        rqs.timeoutIntervaL = 5
+//        rqs.setValue("someother protocol", "Sec-WebSocket-Protocol")
+//        rqs.setValue("14", "Sec-WebSocket-Version")
+//        rqs.setValue("14", "Sec-WebSocket-Version")
+//        socket = new WebSocket(rqs);
+        socket = new WebSocket("ws://192.168.0.61:15080/myapp");
+        socket.onmessage = function (event) {
+            //alert("Received data from websocket: " + event.data);
+            var actionData = JSON.parse(event.data);
+            updateTable(actionData);
+
+        }
+        socket.onopen = function (event) {
+            //alert("Web Socket opened!");
+            console.log("Web Socket opened!");
+        };
+        socket.onclose = function (event) {
+            //alert("Web Socket closed.");
+            console.log("Web Socket closed.");
+        };
+
+    } else {
+        alert("Your browser does not support Websockets. (Use Chrome)");
+    }
+
+    function send(message) {
+        if (!window.WebSocket) {
+            return;
+        }
+        if (socket.readyState == WebSocket.OPEN) {
+            socket.send(message);
+        } else {
+            alert("The socket is not open.");
+        }
+    }
+
+
+    function updateTable(actionData) {
+
+        console.log("got action "+actionData);
+        findEntry(actionData);
+    }
+
+function findEntry(actioData) {
+	//var	selectedRow = document.getElementById("myTable").rows[0];
+    var totalRows = document.getElementById("myTable").rows.length;
+    var found = false;
+   // alert(document.getElementById("myTable").rows[0].cells[0].innerHTML);
+    for (var x = 1; x <= totalRows && !found; x++) {
+        //console.log(selectedRow[x].cells[0].innerHTML);
+        var selectedRow = document.getElementById("myTable").rows[x];
+        var cellVal=selectedRow.cells[0].innerHTML;
+		if ( cellVal=== actioData.id) {
+            if ( actioData.action==="Selected") {
+                selectedRow.classList.add('highlight');
+            } else {
+                selectedRow.classList.remove('highlight');
+            }
+			//selectedRow.cells[0].innerHTML = "Found it!";
+            found=true;
+		};
+    };
+}
+
+
+ function CreateTableFromJSON() {
+      var myBooks = [
+                  {
+                      "ExceptionId": "1",
+                      "Exception Type": "Computer Architecture",
+                      "Category": "Computers",
+                      "Price": "125.60"
+                  },
+                  {
+                      "ExceptionId": "2",
+                      "Exception Type": "Asp.Net 4 Blue Book",
+                      "Category": "Programming",
+                      "Price": "56.00"
+                  },
+                  {
+                      "ExceptionId": "3",
+                      "Exception Type": "Popular Science",
+                      "Category": "Science",
+                      "Price": "210.40"
+                  }
+              ]
+
+
+       // EXTRACT VALUE FOR HTML HEADER.
+        // ('Book ID', 'Book Name', 'Category' and 'Price')
+        var col = [];
+        for (var i = 0; i < myBooks.length; i++) {
+            for (var key in myBooks[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+        }
+
+        // CREATE DYNAMIC TABLE.
+        var table = document.createElement("table");
+        table.id="myTable";
+
+        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+        var tr = table.insertRow(-1);                   // TABLE ROW.
+
+        for (var i = 0; i < col.length; i++) {
+            var th = document.createElement("th");      // TABLE HEADER.
+            th.innerHTML = col[i];
+            tr.appendChild(th);
+        }
+
+        // ADD JSON DATA TO THE TABLE AS ROWS.
+        for (var i = 0; i < myBooks.length; i++) {
+
+            tr = table.insertRow(-1);
+
+            for (var j = 0; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = myBooks[i][col[j]];
+            }
+        }
+
+        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+        var divContainer = document.getElementById("showData");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);
+
+        table.addEventListener('click', function (item) {
+
+                // To get tr tag
+                // In the row where we click
+                var row = item.path[1];
+
+                var row_value = "";
+
+                for (var j = 0; j < row.cells.length; j++) {
+
+                    row_value += row.cells[j].innerHTML;
+                    row_value += " | ";
+                }
+
+                console.log(row_value);
+
+                var rV=row.cells[0].innerHTML;
+
+                // Toggle the highlight
+                if (row.classList.contains('highlight')) {
+                    row.classList.remove('highlight');
+
+                    socket.send("{\"id\" : \""+rV+"\", \"action\": \"Deselected\"}");
+                } else {
+                    row.classList.add('highlight');
+                    socket.send("{\"id\" : \""+rV+"\", \"action\": \"Selected\"}");
+                }
+            });
+
+
+
+ }
+
+
+</script>
+<form onsubmit="return false;">
+  <input type="text" name="message" value="Hello, World!"/>
+  <input type="button" value="Send Web Socket Data" onclick="send(this.form.message.value)"/>
+</form>
+
+<input type="button" onclick="CreateTableFromJSON()" value="Create Table From JSON" />
+<input type="button" onclick="findEntry()" value="Find" />
+<p id="showData"></p>
+</body>
+</html>
