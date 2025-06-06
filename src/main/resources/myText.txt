@@ -65,6 +65,14 @@ Experiment: Don’t be afraid to ask for solutions in unfamiliar languages or pa
 
 Conclusion
 
+
 Reconciling two 1.5GB CSV files was a daunting task, but AI turned it into a triumph. GitHub Copilot not only saved me time but also delivered a solution that was faster and more elegant than I could have imagined. This experience solidified my belief in AI as a powerful ally for developers. I encourage all of you to explore AI tools in your own projects—you’ll be amazed at what you can achieve.
 Ready to give AI a try? Start with a small task, experiment with tools like Copilot, and see how they can transform your workflow. Let’s embrace AI and build better, faster, and smarter together!
+
+
+Prompt
+
+I am a developer and need to write a blog post explaining how I had a need to reconcile 2 huge csv files ( 1.5m records and 128 columns, about 1.5gb in size). For this I asked AI ( copilot) to create a reconcilliation program to check the columns match. Afdter a copul of attempts ( one in python and one in java) it created a fantastic bash script that worked and run really quickly. The point of hte post is to showcase th euse of AI and promte AI usage amonst my colleagues
+
+
 
